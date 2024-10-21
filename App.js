@@ -1,11 +1,16 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View } from "react-native";
+import AppNavigator from "./AppNavigator";
+import { PeopleProvider } from "./PeopleContext";
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <PeopleProvider>
+        {/* This was created in PeopleContext.js used as a wrapper to provide access to the data and functions to whatever its wrapped around */}
+        <AppNavigator />
+        {/* We can use <AppNavigator /> component now because of the Navigation Stack we set up in the AppNavigator.js */}
+      </PeopleProvider>
     </View>
   );
 }
@@ -13,8 +18,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
   },
 });
