@@ -1,3 +1,37 @@
+// import React, { useContext, useState } from "react";
+// import { View, TextInput, Button } from "react-native";
+// import PeopleContext from "../PeopleContext.js";
+// import { useNavigation } from "@react-navigation/native";
+
+// export default function AddPersonScreen() {
+//   const [name, setName] = useState("");
+//   const [dob, setDob] = useState("");
+//   const { addPerson } = useContext(PeopleContext);
+//   const navigation = useNavigation();
+
+//   const savePerson = () => {
+//     if (name && dob) {
+//       addPerson(name, dob); // Call the context function to save the person
+//       navigation.goBack();
+//     }
+//   };
+//   return (
+//     <View>
+//       <TextInput placeholder="Name" value={name} onChangeText={setName} />
+//       {/* TextInput for the person's name. 'name' state is passed as a value, and 'setName' is used to update it.
+//           This input value will later be passed into the context and global state to store the new person's details. */}
+//       <TextInput placeholder="2003-01-03" value={dob} onChangeText={setDob} />
+//       {/* TextInput for the person's date of birth. 'dob' state is passed as a value, and 'setDob' updates it.
+//           The date of birth will also be passed into the context/global state upon saving. */}
+//       <Button title="Save" onPress={savePerson} />
+//       {/* 'Save' button. Eventually, this will trigger a function that sends the 'name' and 'dob' values
+//           to the global state (context) and AsyncStorage to add a new person. */}
+//       <Button title="Cancel" onPress={() => navigation.goBack()} />
+//       {/* 'Cancel' button. It will navigate back to the PeopleScreen, canceling the add operation. */}
+//     </View>
+//   );
+// }
+
 import React, { useContext, useState } from "react";
 import { View, TextInput, Button, Text } from "react-native";
 import PeopleContext from "../PeopleContext";
