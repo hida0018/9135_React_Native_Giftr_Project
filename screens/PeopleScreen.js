@@ -40,36 +40,45 @@ import { useContext } from "react";
 import { Button, FlatList, View, Text, SafeAreaView } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import PeopleContext from "../PeopleContext";
+import styles from "./PeopleScreenStyles";
 
 export default function PeopleScreen() {
   const { people } = useContext(PeopleContext);
   const navigation = useNavigation();
 
-  if (!people.length) {
-    return <Text>No people available. Add your first person!</Text>;
+  // Debugging log to see if 'people' is getting data
+  console.log("People data:", people);
+
+  if (!people || people.length === 0) {
+    // Display a message if the list is empty
+    return (
+      <View style={styles.container}>
+        <Text>No people available. Add your first person!</Text>
+        <Button title="Add Person" onPress={() => navigation.navigate("AddPerson")} />
+      </View>
+    );
   }
+
+  const renderPerson = ({ item }) => (
+    <View style={styles.personContainer}>
+      <Text style={styles.personName}>{item.name}</Text>
+      <Text style={styles.personDOB}>DOB: {item.dob}</Text>
+      <Button
+        title="View Ideas"
+        onPress={() => navigation.navigate("Idea", { id: item.id })} // Navigate to the ideas screen
+      />
+    </View>
+  );
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView>
-        <View>
-          <FlatList
-            data={people} // Ensure people is not null or undefined
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View>
-                {/* Ensure name and dob are properly rendered inside <Text> */}
-                <Text>{item.name}</Text>
-                <Text>{item.dob}</Text>
-                <Button
-                  title="View Ideas"
-                  onPress={() => navigation.navigate("Idea", { id: item.id })} // pass item.id correctly
-                />
-              </View>
-            )}
-          />
-          <Button title="Add Person" onPress={() => navigation.navigate("AddPerson")} />
-        </View>
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          data={people} // Passing the array 'people' to FlatList
+          keyExtractor={(item) => item.id}
+          renderItem={renderPerson} // Render each person in the list
+        />
+        <Button title="Add Person" onPress={() => navigation.navigate("AddPerson")} />
       </SafeAreaView>
     </SafeAreaProvider>
   );
