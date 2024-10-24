@@ -44,18 +44,41 @@ export const PeopleProvider = ({ children }) => {
   };
 
   const addIdea = async (personId, idea) => {
-    //addIdea adds a new idea for the selected person and updates the people array in the context and AsyncStorage.
     const updatedPeople = people.map((person) => {
       if (person.id === personId) {
-        return { ...person, ideas: [...person.ideas, idea] };
+        console.log(`Adding idea to ${person.name}:`, idea);
+        const existingIdeas = person.ideas || []; // Ensure ideas is an array
+        return { ...person, ideas: [...existingIdeas, idea] };
       }
       return person;
     });
+
+    setPeople(updatedPeople);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
+    console.log("Updated People after adding idea:", updatedPeople);
+  };
+
+  // Function to delete a person from the people array and AsyncStorage
+  const deletePerson = async (personId) => {
+    const updatedPeople = people.filter((person) => person.id !== personId);
     setPeople(updatedPeople);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
   };
+  const deleteIdea = async (personId, ideaId) => {
+    const updatedPeople = people.map((person) => {
+      if (person.id === personId) {
+        return {
+          ...person,
+          ideas: person.ideas.filter((idea) => idea.id !== ideaId),
+        };
+      }
+      return person;
+    });
 
-  return <PeopleContext.Provider value={{ people, addPerson, addIdea }}>{children}</PeopleContext.Provider>;
+    setPeople(updatedPeople);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
+  };
+  return <PeopleContext.Provider value={{ people, addPerson, addIdea, deletePerson, deleteIdea }}>{children}</PeopleContext.Provider>;
   // This line makes the people state and the addPerson function & the addIdea function available to all the components wrapped in PeopleProvider.
   // The value prop in the PeopleContext.Provider contains the data and functions that will be shared across the app (people array and addPerson function & other one).
   // {children} is a special prop that represents all the components wrapped by PeopleProvider (e.g., screens like PeopleScreen, AddPersonScreen, etc.).

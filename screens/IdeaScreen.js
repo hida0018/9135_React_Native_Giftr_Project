@@ -1,32 +1,43 @@
 import React, { useContext } from "react";
-import { View, FlatList, Text, Button, Image } from "react-native";
+import { View, FlatList, Text, Button, Image, TouchableOpacity } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import PeopleContext from "../PeopleContext";
+import styles from "./IdeaScreenStyles"; // Import external stylesheet
 
 export default function IdeaScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { people } = useContext(PeopleContext);
+  const { people, deleteIdea } = useContext(PeopleContext);
 
-  const person = people.find((p) => p.id === route.params.id); // get person by ID
+  const person = people.find((p) => p.id === route.params.id);
   const ideas = person?.ideas || [];
 
+  if (!person) {
+    return (
+      <View style={styles.container}>
+        <Text>No person found!</Text>
+      </View>
+    );
+  }
+
   return (
-    <View>
+    <View style={styles.container}>
       <Text>Ideas for {person?.name}</Text>
       <FlatList
         data={ideas}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View>
-            <Text>{item.text}</Text>
-            {item.img && <Image source={{ uri: item.img }} style={{ width: 100, height: 150 }} />}
-            <Button
-              title="Delete"
-              onPress={() => {
-                /* Add delete functionality later */
-              }}
-            />
+          <View style={styles.ideaItem}>
+            {/* Wrap text in Text component */}
+            <Text style={styles.ideaText}>{item.text}</Text>
+
+            {/* Ensure image is handled correctly */}
+            {item.img && <Image source={{ uri: item.img }} style={styles.ideaImage} />}
+
+            {/* Wrap button title inside Text */}
+            <TouchableOpacity onPress={() => deleteIdea(person.id, item.id)} style={styles.deleteButton}>
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
           </View>
         )}
       />

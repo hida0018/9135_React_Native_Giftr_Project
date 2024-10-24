@@ -1,85 +1,78 @@
-// import { useNavigation } from "@react-navigation/native";
-// import { useContext } from "react";
-// import { Button, FlatList, View, Text, SafeAreaView } from "react-native";
-// import { SafeAreaProvider } from "react-native-safe-area-context";
-// import PeopleContext from "../PeopleContext";
-
-// export default function PeopleScreen() {
-//   const navigation = useNavigation();
-//   const { people } = useContext(PeopleContext);
-
-//   return (
-//     <SafeAreaProvider>
-//       {/* SafeAreaProvider ensures the UI is rendered within the visible area of the screen */}
-//       <SafeAreaView>
-//         {/* SafeAreaView ensures components are rendered within the safe areas of the screen (avoiding notches, status bars, etc.) */}
-//         <FlatList
-//           data={people} // Passing the array 'people' to FlatList. This array contains the list of people to display.
-//           keyExtractor={(item) => item.id} // The 'keyExtractor' function tells FlatList which key to use as a unique identifier for each item, here it’s using the id of each person.
-//           renderItem={({ item }) => (
-//             // 'item' is each object (person) in the 'people' array
-//             //  The 'people' array is hardcoded and contains person objects with 'name' and 'dob'
-//             <View>
-//               <Text>{item.name}</Text>
-//               {/* Renders the 'name' of the person inside a Text component */}
-//               {/* 'item.name' comes from the 'name' property of the person object in the 'people' array */}
-//               <Text>{item.dob}</Text>
-//               {/* Renders the 'dob' (date of birth) of the person inside a Text component */}
-//               {/* 'item.dob' comes from the 'dob' property of the person object in the 'people' array */}
-//             </View>
-//           )}
-//         />
-//         <Button title="Add Person" onPress={() => navigation.navigate("AddPerson")} />
-//       </SafeAreaView>
-//     </SafeAreaProvider>
-//   );
-// }
-
-import { useNavigation } from "@react-navigation/native";
-import { useContext } from "react";
-import { Button, FlatList, View, Text, SafeAreaView } from "react-native";
+import React, { useContext } from "react";
+import { FlatList, View, Text, Button, SafeAreaView } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView, Swipeable } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import PeopleContext from "../PeopleContext";
 import styles from "./PeopleScreenStyles";
+import { useNavigation } from "@react-navigation/native";
 
 export default function PeopleScreen() {
-  const { people } = useContext(PeopleContext);
+  const { people, deletePerson } = useContext(PeopleContext);
+  // Using the useContext hook to extract the list of people (people) and the deletePerson function from PeopleContext. This gives access to the state and allows us to modify it.
   const navigation = useNavigation();
 
-  // Debugging log to see if 'people' is getting data
-  console.log("People data:", people);
-
+  // If there are no people in the list, display a message and a button to add a new person.
   if (!people || people.length === 0) {
-    // Display a message if the list is empty
     return (
       <View style={styles.container}>
         <Text>No people available. Add your first person!</Text>
         <Button title="Add Person" onPress={() => navigation.navigate("AddPerson")} />
+        {/* Button to navigate to the AddPerson screen when clicked */}
       </View>
     );
   }
 
+  // Function to render the right swipe action
+  const renderRightActions = (id) => (
+    <TouchableOpacity
+      onPress={() => deletePerson(id)} // Call the deletePerson function from the context to delete the person by their id when the button is pressed
+      style={styles.deleteButton}
+    >
+      <Text style={styles.deleteText}>Delete</Text>
+    </TouchableOpacity>
+  );
+  // renderPerson function renders each individual person in the FlatList.
+  // This function will be called for each person item in the people array.
   const renderPerson = ({ item }) => (
-    <View style={styles.personContainer}>
-      <Text style={styles.personName}>{item.name}</Text>
-      <Text style={styles.personDOB}>DOB: {item.dob}</Text>
-      <Button
-        title="View Ideas"
-        onPress={() => navigation.navigate("Idea", { id: item.id })} // Navigate to the ideas screen
-      />
-    </View>
+    <Swipeable renderRightActions={() => renderRightActions(item.id)}>
+      <View style={styles.personContainer}>
+        <Text style={styles.personName}>{item.name}</Text>
+        <Text style={styles.personDOB}>DOB: {item.dob}</Text>
+        <Button
+          title="View Ideas"
+          onPress={() => navigation.navigate("Idea", { id: item.id })}
+          // Navigating to the Idea screen for the selected person when the "View Ideas" button is pressed. The person's id is passed as a parameter.
+        />
+      </View>
+    </Swipeable>
   );
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <FlatList
-          data={people} // Passing the array 'people' to FlatList
-          keyExtractor={(item) => item.id}
-          renderItem={renderPerson} // Render each person in the list
-        />
-        <Button title="Add Person" onPress={() => navigation.navigate("AddPerson")} />
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.container}>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.container}>
+          <FlatList data={people} keyExtractor={(item) => item.id} renderItem={renderPerson} />
+          {/* FlatList takes the people array from context and displays each item in the list. */}
+          {/* keyExtractor provides a unique key for each item in the list. The person's id is used as the key. */}
+          {/* renderItem defines how each item in the list should be rendered, using the renderPerson function to define the layout and behavior of each person. */}
+          <Button title="Add Person" onPress={() => navigation.navigate("AddPerson")} />
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
+}
+
+{
+  /* 
+  RECAP:
+Main Return Block (Top-Level Rendering): Defines the overall structure of the screen, including the FlatList (for displaying people) and a Button (for navigating to the "Add Person" screen).
+renderPerson (Rendering Individual Person Items): Defines how each person in the people array is displayed. It also includes swipe functionality through Swipeable.
+renderRightActions (Rendering Swipe-to-Delete Action): Defines the action that appears when a person item is swiped, which in this case is a delete button.
+
+These three "render areas" work together:
+
+1. Main render block: Handles the layout of the overall screen.
+2. renderPerson: Handles how each item in the list is displayed.
+3. renderRightActions: Handles the swipe-to-delete functionality for each item. */
 }

@@ -16,14 +16,12 @@ export default function AddIdeaScreen() {
   const route = useRoute();
   const [text, setText] = useState("");
 
-  // Request permission on mount if not granted
   useEffect(() => {
     if (!permission) {
       requestPermission();
     }
   }, [permission]);
 
-  // Take photo
   const takePicture = async () => {
     if (cameraRef) {
       try {
@@ -37,23 +35,21 @@ export default function AddIdeaScreen() {
     }
   };
 
-  // Save idea
   const saveIdea = () => {
     if (text && photo) {
       const idea = {
-        id: new Date().getTime().toString(), // Generate a unique ID for each idea
+        id: new Date().getTime().toString(),
         text,
         img: photo,
       };
       addIdea(route.params.id, idea);
-      navigation.goBack(); // Go back to the previous screen
+      navigation.goBack();
     } else {
       console.warn("Text or photo missing");
     }
   };
 
   if (!permission) {
-    // Permissions are still loading
     return (
       <View>
         <Text>Requesting camera permission...</Text>
@@ -62,7 +58,6 @@ export default function AddIdeaScreen() {
   }
 
   if (!permission.granted) {
-    // Permission was not granted, show request button
     return (
       <View>
         <Text>We need your permission to use the camera</Text>
@@ -81,11 +76,7 @@ export default function AddIdeaScreen() {
       />
 
       {!photo ? (
-        <CameraView
-          style={{ flex: 1 }}
-          facing={facing}
-          ref={(ref) => setCameraRef(ref)} // Reference to camera
-        >
+        <CameraView style={{ flex: 1 }} ref={(ref) => setCameraRef(ref)}>
           <TouchableOpacity
             onPress={takePicture}
             style={{
